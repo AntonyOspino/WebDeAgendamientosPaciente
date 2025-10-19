@@ -3,30 +3,30 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
+import { loginHandler } from "@/utils/Request";
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const router = useRouter();
-
-  const handleLogin = (e) => {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
+    const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    // Validación simple
-    if (email === "paciente@fundacion.com" && password === "123456") {
-      // Guardamos el token simulado
-      localStorage.setItem("token", "fake-jwt-token");
-      localStorage.setItem(
-        "usuario",
-        JSON.stringify({ nombre: "Junior Gutiérrez" })
-      );
+    const result = await loginHandler(username, password);
 
+    if (result.ok) {
+      // ✅ La cookie ya está seteada automáticamente en el server action
       // Redirigimos al dashboard
       router.push("/dashboard");
+      router.refresh(); // ← Esto es importante para que el servidor reconozca la cookie
     } else {
-      setError("Correo o contraseña incorrectos");
+      setError(result.error || "Correo o contraseña incorrectos");
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -50,13 +50,13 @@ export default function LoginPage() {
 
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1 text-gray-600">
-            Correo Electrónico
+            Nombre de Usuario
           </label>
           <input
-            type="email"
-            placeholder="ejemplo@correo.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            placeholder="usuario"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
             className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -87,10 +87,10 @@ export default function LoginPage() {
           Entrar
         </button>
 
-        <p className="text-gray-500 text-sm text-center mt-4">
+        {/* <p className="text-gray-500 text-sm text-center mt-4">
           Usuario demo: <b>paciente@fundacion.com</b> <br />
           Contraseña: <b>123456</b>
-        </p>
+        </p> */}
       </form>
     </div>
   );
