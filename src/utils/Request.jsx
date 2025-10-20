@@ -132,13 +132,12 @@ export const getProximaCita = async () => {
     }
 
     // Verificar que tenga contenido antes de parsear JSON
-    const text = await response.text();
-    if (!text) {
+    const data = await response.json();
+    if (!data) {
       return null;
     }
 
-    const data = JSON.parse(text);
-    return data;
+    return data.proxima_cita;
     
   } catch (error) {
     console.error('Error al obtener la próxima cita:', error);

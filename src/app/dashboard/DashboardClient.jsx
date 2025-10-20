@@ -72,15 +72,15 @@ export default function DashboardClient({ initialPaciente, initialProximaCita })
             </h3>
             {proximaCita ? (
               <div>
-                <p><strong>Fecha:</strong> {proximaCita.fecha}</p>
-                <p><strong>Hora:</strong> {proximaCita.hora}</p>
-                <p><strong>Doctor:</strong> {proximaCita.doctor}</p>
+                <p><strong>Fecha:</strong> {proximaCita.fecha_cita}</p>
+                <p><strong>Hora:</strong> {proximaCita.hora_cita}</p>
+                <p><strong>Doctor:</strong> {proximaCita.medico}</p>
                 <p><strong>Especialidad:</strong> {proximaCita.especialidad}</p>
                 <p>
                   <strong>Estado:</strong>{" "}
                   <span
                     className={`font-medium ${
-                      proximaCita.estado.includes("Pendiente")
+                      proximaCita.estado === "Aprobada"
                         ? "text-yellow-600"
                         : "text-green-600"
                     }`}
