@@ -151,3 +151,41 @@ export const logoutHandler = async () => {
   cookieStore.delete('auth_token');
   redirect('/login');
 };
+
+export const getHistorialPaciente = async (fecha = null, rango = null) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
+    if (!token) {
+      return { ok: false, error: 'No autenticado', status: 401 };
+    }
+
+    let url = 'http://localhost:8000/Paciente/historial';
+    if (fecha) {
+      url += `?fecha=${encodeURIComponent(fecha)}`;
+    } else if (rango) {
+      url += `?rango=${encodeURIComponent(rango)}`;
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: `Error ${response.status}: No se pudo cargar el historial.`,
+        status: response.status,
+      };
+    }
+
+    const data = await response.json();
+    return { ok: true, historial: data.historial || [], status: response.status };
+  } catch (error) {
+    console.error('Error al obtener el historial:', error);
+    return { ok: false, error: error.message, status: 500 };
+  }
+};

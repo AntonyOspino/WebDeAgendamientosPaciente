@@ -26,11 +26,18 @@ export default function DashboardClient({ initialPaciente, initialProximaCita })
         <Navbar />
         <div className="max-w-5xl mx-auto p-8">
           {/* Título */}
-          <h2 className="text-2xl font-semibold text-yellow-400 mb-6">
-            Bienvenido, {paciente.rol} {paciente.nombre} {paciente.apellido} 👋
-          </h2>
+          {paciente ? (
+            <h2 className="text-2xl font-semibold text-yellow-400 mb-6">
+              Bienvenido, {paciente.rol} {paciente.nombre} {paciente.apellido} 👋
+            </h2>
+          ) : (
+            <h2 className="text-2xl font-semibold text-yellow-400 mb-6">
+              Bienvenido, visitante 👋
+            </h2>
+          )}
 
           {/* Información personal y médica */}
+          {paciente ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-blue-200 p-6 rounded-xl shadow-md">
               <h3 className="text-lg font-bold text-blue-600 mb-2">
@@ -50,6 +57,13 @@ export default function DashboardClient({ initialPaciente, initialProximaCita })
               <p><strong>Talla:</strong> {paciente.datos_especificos.talla}</p>
             </div>
           </div>
+          ) : (
+            <div className="bg-yellow-100 p-6 rounded-xl shadow-md mb-6">
+              <p className="text-gray-700">
+                No se pudo cargar tu información personal. Por favor, asegúrate de estar correctamente autenticado.
+              </p>
+            </div>
+          )}
 
           {/* Próxima cita */}
           <div className="bg-green-200 p-6 rounded-xl shadow-md mt-6">
