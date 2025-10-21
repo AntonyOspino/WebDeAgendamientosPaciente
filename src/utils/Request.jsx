@@ -188,3 +188,84 @@ export const getHistorialPaciente = async (fecha = null, rango = null) => {
     return { ok: false, error: error.message, status: 500 };
   }
 };
+
+export const reservarCita = async (formData) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
+    if (!token) {
+      return { ok: false, error: 'No autenticado', status: 401 };
+    }
+    const response = await fetch('http://localhost:8000/Paciente/citas', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      return { ok: false, error: data.detail || 'Error al reservar cita', status: response.status };
+    }
+
+    return { ok: true, status: response.status };
+  } catch (error) {
+    console.error('Error al reservar cita:', error);
+    return { ok: false, error: error.message, status: 500 };
+  }
+};
+
+export const getEspecialidades = async () => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
+    if (!token) {
+      return { ok: false, error: 'No autenticado', status: 401 };
+    }
+    const response = await fetch('http://localhost:8000/Paciente/especialidades', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Error al obtener especialidades:', response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.especialidades || [];
+  } catch (error) {
+    console.error('Error al obtener especialidades:', error);
+    return [];
+  }
+};
+
+export const getMedicosPorEspecialidad = async (especialidadId) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
+    if (!token) {
+      return { ok: false, error: 'No autenticado', status: 401 };
+    }
+    const response = await fetch(`http://localhost:8000/Paciente/medicos?especialidad_id=${especialidadId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Error al obtener doctores:', response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.medicos || [];
+  } catch (error) {
+    console.error('Error al obtener doctores:', error);
+    return [];
+  }
+};
