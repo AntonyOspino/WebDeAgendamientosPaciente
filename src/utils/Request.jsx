@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { decodeJWT, ROLES } from './jwt-server';
 
 export const loginHandler = async (username, password) => {
   const url = 'http://localhost:8000/Usuario/login';
@@ -29,19 +30,42 @@ export const loginHandler = async (username, password) => {
       };
     }
 
-    // ✅ AGREGAR AWAIT aquí también
+    // 🔍 Decodificar el JWT para validar el rol
+    const decodedToken = decodeJWT(data.access_token);
+    
+    if (!decodedToken) {
+      return {
+        status: 500,
+        error: 'Error procesando credenciales',
+        ok: false,
+      };
+    }
+
+    // ✅ Validar que el usuario sea un Paciente (rol_id = 1)
+    if (decodedToken.rol_id !== 1) {
+      const roleName = ROLES[decodedToken.rol_id] || `rol_id: ${decodedToken.rol_id}`;
+      return {
+        status: 403,
+        error: `Acceso no autorizado. Tu rol (${roleName}) no puede acceder al portal de pacientes.`,
+        ok: false,
+      };
+    }
+
+    // ✅ Usuario válido, establecer cookie
     const cookieStore = await cookies();
     cookieStore.set('auth_token', data.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 30 * 60,
+      maxAge: 30 * 60, // 30 minutos
       path: '/',
     });
 
     return {
       status: response.status,
       token: data.access_token,
+      user_id: decodedToken.sub,
+      rol_id: decodedToken.rol_id,
       ok: true,
     };
   } catch (error) {

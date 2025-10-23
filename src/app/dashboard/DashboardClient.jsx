@@ -116,7 +116,7 @@ export default function DashboardClient({ initialPaciente, initialProximaCita })
 
             <button
               onClick={handleLogout}
-              className="flex flex-col items-center justify-center bg-red-500 text-white p-6 rounded-xl shadow hover:bg-red-600 transition"
+              className="flex flex-col items-center justify-center bg-red-500 text-white p-6 rounded-xl shadow hover:bg-red-600 transition cursor-pointer"
             >
               <FaSignOutAlt size={30} className="mb-2" />
               <span>Salir</span>

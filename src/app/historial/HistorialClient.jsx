@@ -90,7 +90,7 @@ export default function HistorialClient({ initialHistorial, getHistorialPaciente
 
           <button
             onClick={filtrar}
-            className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition mt-2 md:mt-0"
+            className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition mt-2 md:mt-0 cursor-pointer"
           >
             Buscar
           </button>

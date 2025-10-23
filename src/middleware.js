@@ -1,64 +1,63 @@
-// middleware.js
+// src/middleware.js
 import { NextResponse } from 'next/server';
+import { decodeJWT, ROLES } from './utils/jwt-server';
 
 export function middleware(request) {
   const token = request.cookies.get('auth_token')?.value;
 
-  // Definir todas las rutas que requieren autenticación
-  const authPages = [
-    '/dashboard',
-    '/historial',
-    '/reservas'
-  ];
+  const authPages = ['/dashboard', '/historial', '/reservas'];
+  const publicPages = ['/login'];
   
-  // Definir rutas públicas (acceso solo si NO está autenticado)
-  const publicPages = [
-    '/login'
-  ];
-
   const currentPath = request.nextUrl.pathname;
-  
-  // 🔒 Verificar si está en una ruta que requiere autenticación
-  const requiresAuth = authPages.some(page => 
-    currentPath === page || currentPath.startsWith(page + '/')
-  );
-  
-  // 🔓 Verificar si está en una ruta pública (solo para no autenticados)
-  const isPublicPage = publicPages.some(page => 
-    currentPath === page || currentPath.startsWith(page + '/')
-  );
+  const requiresAuth = authPages.some(page => currentPath === page || currentPath.startsWith(page + '/'));
+  const isPublicPage = publicPages.some(page => currentPath === page || currentPath.startsWith(page + '/'));
 
-  // 🔒 Si la ruta REQUIERE autenticación y el usuario NO tiene token
+  // 🔒 Ruta protegida sin token
   if (requiresAuth && !token) {
-    console.log(`Middleware: Usuario no autenticado intentando acceder a ${currentPath}, redirigiendo a login`);
-    
-    // Opcional: Guardar la URL original para redirigir después del login
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', currentPath);
-    
     return NextResponse.redirect(loginUrl);
   }
 
-  // 🔓 Si está en una ruta PÚBLICA y el usuario SÍ tiene token
+  // 🔓 Ruta pública con token
   if (isPublicPage && token) {
-    console.log(`Middleware: Usuario autenticado intentando acceder a ${currentPath}, redirigiendo a dashboard`);
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // ✅ Permitir el acceso
+  // 🔍 Validar rol para rutas protegidas
+  if (requiresAuth && token) {
+    const decodedToken = decodeJWT(token);
+    
+    if (!decodedToken) {
+      // Token inválido o corrupto
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('error', 'Sesión inválida. Por favor, inicia sesión nuevamente.');
+      const response = NextResponse.redirect(loginUrl);
+      response.cookies.delete('auth_token');
+      return response;
+    }
+
+    // Validar que sea Paciente (rol_id = 1)
+    if (decodedToken.rol_id !== 1) {
+      const roleName = ROLES[decodedToken.rol_id] || `Rol #${decodedToken.rol_id}`;
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('error', `Acceso restringido. Tu perfil (${roleName}) no puede acceder al portal de pacientes.`);
+      const response = NextResponse.redirect(loginUrl);
+      response.cookies.delete('auth_token');
+      return response;
+    }
+    
+    return NextResponse.next();
+  }
+
   return NextResponse.next();
 }
 
-// Especifica en qué rutas se ejecutará el middleware
 export const config = {
   matcher: [
-    // Rutas protegidas (requieren autenticación)
     '/dashboard/:path*',
     '/historial/:path*',
     '/reservas/:path*',
-    // Rutas públicas (solo para no autenticados)
-    '/login/:path*',
-    '/registro/:path*',
-    '/recuperar-contrasena/:path*'
+    '/login/:path*'
   ]
 };
