@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import ChatWidget from "@/components/ChatWidget";
+// import ChatWidget from "@/components/ChatWidget";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-export default function HistorialClient({ initialHistorial, getHistorialPaciente }) {
+export default function HistorialClient({
+  initialHistorial,
+  getHistorialPaciente,
+}) {
   const [filtroInicio, setFiltroInicio] = useState(null);
   const [filtroFin, setFiltroFin] = useState(null);
   const [resultados, setResultados] = useState(initialHistorial);
@@ -25,7 +28,9 @@ export default function HistorialClient({ initialHistorial, getHistorialPaciente
       let response;
       if (filtroInicio && filtroFin) {
         if (filtroInicio > filtroFin) {
-          setError("La fecha de inicio no puede ser mayor que la fecha de fin.");
+          setError(
+            "La fecha de inicio no puede ser mayor que la fecha de fin."
+          );
           return;
         }
         const rango = `${formatDate(filtroInicio)} al ${formatDate(filtroFin)}`;
@@ -56,9 +61,7 @@ export default function HistorialClient({ initialHistorial, getHistorialPaciente
           Historial Médico
         </h2>
 
-        {error && (
-          <p className="text-red-500 text-center mb-4">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         {/* Filtros por fecha */}
         <div className="bg-white p-6 rounded-xl shadow-md mb-6 flex flex-col md:flex-row gap-4 items-center">
@@ -108,7 +111,9 @@ export default function HistorialClient({ initialHistorial, getHistorialPaciente
                   <th className="border px-3 py-2 text-left">Especialidad</th>
                   <th className="border px-3 py-2 text-left">Sistema</th>
                   <th className="border px-3 py-2 text-left">Diagnóstico</th>
-                  <th className="border px-3 py-2 text-left">Recomendaciones</th>
+                  <th className="border px-3 py-2 text-left">
+                    Recomendaciones
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -119,12 +124,8 @@ export default function HistorialClient({ initialHistorial, getHistorialPaciente
                     <td className="border px-3 py-2">{item.medico}</td>
                     <td className="border px-3 py-2">{item.especialidad}</td>
                     <td className="border px-3 py-2">{item.sistema}</td>
-                    <td className="border px-3 py-2">
-                      {item.diagnostico}
-                    </td>
-                    <td className="border px-3 py-2">
-                      {item.recomendaciones}
-                    </td>
+                    <td className="border px-3 py-2">{item.diagnostico}</td>
+                    <td className="border px-3 py-2">{item.recomendaciones}</td>
                   </tr>
                 ))}
               </tbody>
@@ -137,7 +138,7 @@ export default function HistorialClient({ initialHistorial, getHistorialPaciente
         )}
       </div>
 
-      <ChatWidget />
+      {/* <ChatWidget /> */}
     </div>
   );
 }
