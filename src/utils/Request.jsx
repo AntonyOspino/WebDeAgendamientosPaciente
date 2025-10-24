@@ -4,8 +4,10 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { decodeJWT, ROLES } from './jwt-server';
 
+const API_BASE_URL = 'https://fundacion-amigos-de-los-ninos.onrender.com';
+
 export const loginHandler = async (username, password) => {
-  const url = 'http://localhost:8000/Usuario/login';
+  const url = `${API_BASE_URL}/Usuario/login`;
   const body = JSON.stringify({ 
     nombre_usuario: username, 
     contrasena: password 
@@ -79,7 +81,7 @@ export const loginHandler = async (username, password) => {
 };
 
 export const getUserProfile = async () => {
-  const url = 'http://localhost:8000/Usuario/perfil';
+  const url = `${API_BASE_URL}/Usuario/perfil`;
   
   try {
     const cookieStore = await cookies();
@@ -135,7 +137,7 @@ export const getProximaCita = async () => {
       return null;
     }
 
-    const response = await fetch('http://localhost:8000/Paciente/citas/proxima', {
+    const response = await fetch(`${API_BASE_URL}/Paciente/citas/proxima`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
@@ -183,7 +185,7 @@ export const getHistorialPaciente = async (fecha = null, rango = null) => {
       return { ok: false, error: 'No autenticado', status: 401 };
     }
 
-    let url = 'http://localhost:8000/Paciente/historial';
+    let url = `${API_BASE_URL}/Paciente/historial`;
     if (fecha) {
       url += `?fecha=${encodeURIComponent(fecha)}`;
     } else if (rango) {
@@ -220,7 +222,7 @@ export const reservarCita = async (formData) => {
     if (!token) {
       return { ok: false, error: 'No autenticado', status: 401 };
     }
-    const response = await fetch('http://localhost:8000/Paciente/citas', {
+    const response = await fetch(`${API_BASE_URL}/Paciente/citas`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -247,7 +249,7 @@ export const getEspecialidades = async () => {
     if (!token) {
       return { ok: false, error: 'No autenticado', status: 401 };
     }
-    const response = await fetch('http://localhost:8000/Paciente/especialidades', {
+    const response = await fetch(`${API_BASE_URL}/Paciente/especialidades`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
@@ -274,7 +276,7 @@ export const getMedicosPorEspecialidad = async (especialidadId) => {
     if (!token) {
       return { ok: false, error: 'No autenticado', status: 401 };
     }
-    const response = await fetch(`http://localhost:8000/Paciente/medicos?especialidad_id=${especialidadId}`, {
+    const response = await fetch(`${API_BASE_URL}/Paciente/medicos?especialidad_id=${especialidadId}`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
